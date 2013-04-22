@@ -1,7 +1,7 @@
 Tracks-project-list
 ===================
 
-A python script that creates a markdown file based on your tracks project list from [tracks](getontracks.org).
+A python script that creates a markdown file based on your tracks project list from [tracks](http://getontracks.org).
 
 ## Why was this created
 

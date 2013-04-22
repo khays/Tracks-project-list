@@ -2,12 +2,19 @@ import xml.etree.ElementTree as ET
 import urllib2 
 import time
 from datetime import date
+import ConfigParser
 
-file = urllib2.urlopen('http://domain.com/projects.rss?token=somehash')
+# Get variables from the config file
+config = ConfigParser.RawConfigParser()
+config.read('project.conf')
+name = config.get('General Information', 'yourname')
+projectsURL = config.get('General Information', 'projectsURL')
+exportName = config.get('General Information', 'outputfile')
+
+file = urllib2.urlopen(projectsURL)
 
 data = file.read()
 file.close()
-exportName = 'projects.md'
 
 root = ET.fromstring(data)
 
@@ -17,7 +24,7 @@ root = ET.fromstring(data)
 priority = 1
 
 now = date.today()
-header = '# My projects as of %s\n\n' % now 
+header = '# %s\'s projects as of %s\n\n' % (name,now)
 with open(exportName, 'w') as myfile:
     myfile.write(header)
 
@@ -29,3 +36,5 @@ for item in root.findall('channel/item'):
         myfile.write(title)
         myfile.write('\n')
     priority = priority + 1
+
+print 'File should be saved, take a look at\n\n%s\n' % exportName
