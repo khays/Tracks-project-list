@@ -11,43 +11,25 @@ config.read('project.conf')
 projectsURL = config.get('General Information', 'projectsURL')
 exportName = config.get('General Information', 'outputfile') 
 
-###
-# Class that will hold the various feeds
-#
-# If you would like the xml form the url, call 
-#   .getxml()
-# The url can be found by calling
-#   .geturl()
-###
+"""
+Class that will hold the various feeds
+
+If you would like the xml form the url, call 
+  .getxml()
+The url can be found by calling
+  .geturl()
+"""
 class tracksfeed(object):
     def __init__(self, url):
         self.url = url
 
-        # Change below to use [requests](http://docs.python-requests.org/en/latest/)
-        self.xmlfile = urllib2.urlopen(url)
-        self.xml = self.xmlfile.read()
     def geturl(self):
         return self.url
     def getxml(self):
-        return self.xml
+        return requests.get(self.url).text
 
 projects = tracksfeed(projectsURL)
-
-
-
-
-
-
-
-
-
-
-"""
-file = urllib2.urlopen(projectsURL)
-data = file.read()
-file.close()
-
-root = ET.fromstring(data)
+root = ET.fromstring(projects.getxml())
 
 
 
@@ -76,4 +58,3 @@ def createProjectList(xml):
 
 createHeader()
 createProjectList(root)
-"""
