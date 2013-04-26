@@ -10,15 +10,9 @@ config = ConfigParser.RawConfigParser()
 config.read('project.conf')
 projectsURL = config.get('General Information', 'projectsURL')
 exportName = config.get('General Information', 'outputfile') 
+username = config.get('General Information', 'username') 
+password = config.get('General Information', 'password') 
 
-"""
-Class that will hold the various feeds
-
-If you would like the xml form the url, call 
-  .getxml()
-The url can be found by calling
-  .geturl()
-"""
 class tracksfeed(object):
     def __init__(self, url):
         self.url = url
@@ -26,12 +20,24 @@ class tracksfeed(object):
     def geturl(self):
         return self.url
     def getxml(self):
-        return requests.get(self.url).text
+        return requests.get(self.url, auth=(username, password)).text
 
 projects = tracksfeed(projectsURL)
 root = ET.fromstring(projects.getxml())
 
-
+def createProjectList(xml):
+    priority = 1 # set the variable
+    for project in xml.findall('project'):
+        projectState = project.find('state').text
+        if projectState == 'active':
+            projectName = project.find('name').text.title()
+            with open(exportName, "a") as myfile:
+                number = "%i. " % (int(priority))
+                myfile.write(number)
+                myfile.write(projectName)
+                myfile.write('\n')
+            priority = priority + 1
+    print 'File should be saved, take a look at\n\n%s\n' % exportName
 
 def createHeader():
     name = config.get('General Information', 'yourname')
@@ -39,22 +45,6 @@ def createHeader():
     header = '# %s\'s projects as of %s\n\n' % (name,now)
     with open(exportName, 'w') as myfile:
         myfile.write(header)
-
-def createProjectList(xml):
-    priority = 1 # set the variable
-
-    # Loop through xml object
-    for item in root.findall('channel/item'):
-        title = item.find('title').text
-        with open(exportName, "a") as myfile:
-            number = "%i. " % (int(priority))
-            myfile.write(number)
-            myfile.write(title)
-            myfile.write('\n')
-        priority = priority + 1
-
-
-    print 'File should be saved, take a look at\n\n%s\n' % exportName
 
 createHeader()
 createProjectList(root)
